@@ -1,0 +1,151 @@
+"use client";
+
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { Checkbox } from "~/components/ui/checkbox";
+import type { PropertyInfo, PropertyType } from "~/types/property-form";
+
+interface PropertyStepProps {
+  data: PropertyInfo;
+  updateData: (data: Partial<PropertyInfo>) => void;
+  errors: Record<string, string>;
+}
+
+export function PropertyStep({ data, updateData, errors }: PropertyStepProps) {
+  const propertyTypes: { value: PropertyType; label: string }[] = [
+    { value: "piso", label: "Piso" },
+    { value: "casa", label: "Casa" },
+    { value: "local", label: "Local" },
+    { value: "solar", label: "Solar" },
+    { value: "garaje", label: "Garaje" },
+  ];
+
+  const features = [
+    "Piscina",
+    "Jardín",
+    "Garaje",
+    "Balcón",
+    "Terraza",
+    "Aire acondicionado",
+    "Calefacción",
+    "Seguridad 24h",
+    "Amueblado",
+    "Ascensor",
+    "Vistas al mar",
+    "Vistas a la montaña",
+  ];
+
+  const handleFeatureToggle = (feature: string, checked: boolean) => {
+    if (checked) {
+      updateData({ caracteristicas: [...data.caracteristicas, feature] });
+    } else {
+      updateData({
+        caracteristicas: data.caracteristicas.filter((f) => f !== feature),
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold">Datos Generales</h2>
+        <p className="text-muted-foreground">
+          Introduce las características de tu inmueble.
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="tipo">Tipo de Propiedad</Label>
+            <Select
+              value={data.tipo}
+              onValueChange={(value: PropertyType) =>
+                updateData({ tipo: value })
+              }
+            >
+              <SelectTrigger id="tipo">
+                <SelectValue placeholder="Selecciona un tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                {propertyTypes.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="superficie">
+              Superficie (m²) <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="superficie"
+              type="number"
+              value={data.superficie}
+              onChange={(e) => updateData({ superficie: e.target.value })}
+              placeholder="Superficie en m²"
+              className={errors.superficie ? "border-red-500" : ""}
+            />
+            {errors.superficie && (
+              <p className="text-sm text-red-500">{errors.superficie}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="habitaciones">Habitaciones</Label>
+            <Input
+              id="habitaciones"
+              type="number"
+              value={data.habitaciones}
+              onChange={(e) => updateData({ habitaciones: e.target.value })}
+              placeholder="Número de habitaciones"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="banos">Baños</Label>
+            <Input
+              id="banos"
+              type="number"
+              value={data.banos}
+              onChange={(e) => updateData({ banos: e.target.value })}
+              placeholder="Número de baños"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Características</Label>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {features.map((feature) => (
+              <div key={feature} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`feature-${feature}`}
+                  checked={data.caracteristicas.includes(feature)}
+                  onCheckedChange={(checked) =>
+                    handleFeatureToggle(feature, checked as boolean)
+                  }
+                />
+                <Label htmlFor={`feature-${feature}`} className="text-sm">
+                  {feature}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
